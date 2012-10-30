@@ -1,0 +1,70 @@
+body, html {
+	color: white;
+	width: 100%;
+	height: 100%;
+
+	font-size: 16px;
+	font-family: serif;
+
+	
+	background-image: url('http://localhost/space-invaders/images/background-pattern.png'); /* url('http://localhost/space-invaders/images/space.jpg'); */
+
+}
+
+.container {
+	width: 960px;
+	margin: 0 auto;
+}
+
+header {
+	
+}
+
+h1 {
+	color: #fafafa;
+	text-shadow: 1px 1px 5px #000;
+	text-shadow: 0px 2px 2px rgba(10, 10, 10, 0.4);
+
+	font-size: 42px;
+	font-weight: bold;
+	line-height: 70px;
+}
+
+h2 {
+	color: #fafafa;
+	text-shadow: 1px 1px 5px #000;
+	text-shadow: 0px 2px 2px rgba(10, 10, 10, 0.4);
+
+	font-size: 32px;
+	font-weight: bold;
+	line-height: 40px;	
+}
+
+#content {
+	/* margin-bottom: -50px; */
+}
+
+footer {
+	margin-top: 10px;
+	color: #fafafa;
+	text-shadow: 1px 1px 1px #000;
+	width: 100%;
+	/*
+		position: absolute;
+		bottom: 0;
+	 */
+	
+	background: rgba(22,22,22, 0.5);
+	border-top: black solid thin;
+	/*opacity: 0.5;*/
+	line-height: 50px;
+}
+
+canvas {
+	border: thin solid black;
+	background: white;
+}
+
+p {
+	margin: 1em 0;
+}
