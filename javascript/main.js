@@ -1,3 +1,5 @@
+var EnemyMissileChange = 0.0005;
+
 var Game = function() {
 	this.canvas = document.getElementById('canvas');
 	this.context = this.canvas.getContext("2d");
@@ -59,6 +61,7 @@ var Game = function() {
 
 		this.enemySpeed = 2;
 		this.enemyDirection = 'right';
+		this.missiles = [];
 
 		for (var i = 0; i < 10; i++) {
 			for (var y = 0; y < 5; y++) {
@@ -73,10 +76,14 @@ var Game = function() {
 	Game.prototype.redraw = function() {
 		this.canvas.width = this.canvas.width; // clears the canvas 
 		this.player.draw(this.context);
-
+		// Draw enemies
 		for (var i = 0; i < this.enemies.length; i++) {
 			this.enemies[i].draw(this.context);
 		};
+		// Draw enemy missiles
+		for (missile in this.missiles) {
+			this.missiles[missile].draw(this.context);
+		}
 		// Draw score
 		this.context.fillStyle="#222";
 		this.context.lineStyle="#ffff00";
@@ -97,6 +104,26 @@ var Game = function() {
 			}
 			game.enemies[i].update();
 		};
+
+		// Update missiles
+		for (var i = 0; i < game.missiles.length; i++) {
+			missile = game.missiles[i];
+			missile.update();
+			// Delete missile if missile is out of sight
+			if (missile.y > 640) {
+				game.missiles.splice(i, 1);
+			}
+
+			for (var j = 0; j < game.player.missiles.length; j++) {
+				console.log(missile);
+				console.log(game.player.missiles[j]);
+				if (missile.collide(game.player.missiles[j])) {
+					game.missiles.splice(i, 1);		
+					game.player.missiles.splice(j, 1);		
+				}
+			};
+		};
+
 		game.redraw();
 	}
 
@@ -134,6 +161,7 @@ var Player = function(image) {
 		context.drawImage(this.image, this.x, this.y);
 		this.drawLives(context);
 
+		context.fillStyle = "black";
 		for (missile in this.missiles) {
 			this.missiles[missile].draw(context);
 		}
@@ -161,6 +189,10 @@ var Player = function(image) {
 
 	Player.prototype.die = function() {
 		this.lives--;
+		// Delete all missiles
+		game.missiles = [];
+		this.missiles = [];
+
 		// Show dieing animation
 
 		if (this.lives == 0) {
@@ -220,17 +252,11 @@ var Enemy = function(image, x, y) {
 	this.x = x;
 	this.y = y;
 
-	this.missiles = [];
-
 	this.speed = game.enemySpeed;
 }
 
 	Enemy.prototype.draw = function(context) {
 		context.drawImage(this.image, this.x, this.y, this.width, this.height);
-
-		for (missile in this.missiles) {
-			this.missiles[missile].draw(context);
-		}
 	}
 
 	Enemy.prototype.update = function(context) {
@@ -250,18 +276,8 @@ var Enemy = function(image, x, y) {
 		// Walk left or right
 		
 
-		// Update missiles
-		for (var i = 0; i < this.missiles.length; i++) {
-			missile = this.missiles[i];
-			missile.update();
-			// Delete missile if missile is out of sight
-			if (missile.y > 640) {
-				this.missiles.splice(i, 1);
-			}
-		};
-
 		// Shoot missle randomly
-		if (Math.random() < 0.0005) {
+		if (Math.random() < EnemyMissileChange) {
 			this.shoot();
 		}
 	}
@@ -275,8 +291,8 @@ var Enemy = function(image, x, y) {
 	}
 
 	Enemy.prototype.shoot = function() {
-		if (this.missiles.length < 1 || this.missiles[this.missiles.length - 1].y > this.y + this.height + 45) {
-			this.missiles[this.missiles.length] = new EnemyMissile(this);
+		if (game.missiles.length < 1 || game.missiles[game.missiles.length - 1].y > this.y + this.height + 45) {
+			game.missiles[game.missiles.length] = new EnemyMissile(this);
 		}
 	}
 
@@ -290,7 +306,7 @@ var Enemy = function(image, x, y) {
 	}
 
 var EnemyMissile = function(enemy) {
-	this.width = 5;
+	this.width = 3;
 	this.height = 15;
 	this.x = enemy.x + enemy.width / 2 - this.width / 3;
 	this.y = enemy.y + this.height;
@@ -313,7 +329,6 @@ var EnemyMissile = function(enemy) {
 	    context.lineTo(this.x + this.width, this.y);
 	    context.fillStyle = "red";
 	    context.fill();
-	    context.fillStyle = "black";
 	}
 
 	EnemyMissile.prototype.collide = function(player) {
