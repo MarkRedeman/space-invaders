@@ -3,9 +3,10 @@ var Game = function() {
 	this.context = this.canvas.getContext("2d");
 
 	this.images = {};
+	this.sounds = {};
 	this.totalResources = 2;
 	this.numResourcesLoaded = 0;
-	this.fps = 30;
+	this.fps = 60;
 	this.totalFrames = 0;
 
 	this.loadImage("player");
@@ -56,9 +57,12 @@ var Game = function() {
 		this.enemies = [];
 		this.score = 0;
 
+		this.enemySpeed = 2;
+		this.enemyDirection = 'right';
+
 		for (var i = 0; i < 10; i++) {
 			for (var y = 0; y < 5; y++) {
-				this.enemies[this.enemies.length] = new Enemy(this.images['enemy'], i * 96 + 24, y * 48 + 24);
+				this.enemies[this.enemies.length] = new Enemy(this.images['enemy'], i * 64 + 24, y * 48 + 24);
 			};			
 		};
 
@@ -74,11 +78,10 @@ var Game = function() {
 			this.enemies[i].draw(this.context);
 		};
 		// Draw score
-		// this.context.lineWidth=1;
 		this.context.fillStyle="#222";
 		this.context.lineStyle="#ffff00";
 		this.context.font="18px sans-serif";
-		this.context.fillText("Score: " + this.score, 20, 620); //$('#score').html(this.score);
+		this.context.fillText("Score: " + this.score, 20, 600); //$('#score').html(this.score);		
 		
 	}
 
@@ -86,8 +89,12 @@ var Game = function() {
 		game.totalFrames++;
 		game.player.update();
 
+		var oldDireciton = this.enemyDirection;
 		// Update enemies
 		for (var i = 0; i < game.enemies.length; i++) {
+			if (oldDireciton != this.enemyDirection) {
+				break;
+			}
 			game.enemies[i].update();
 		};
 		game.redraw();
@@ -104,6 +111,8 @@ var Player = function(image) {
 
 	this.y = game.canvas.height - this.height - 10;
 	this.x = game.canvas.width / 2 - this.width / 2;
+
+	this.lives = 3;
 
 
 	this.missiles = [];
@@ -123,10 +132,17 @@ var Player = function(image) {
 
 	Player.prototype.draw = function(context) {
 		context.drawImage(this.image, this.x, this.y);
+		this.drawLives(context);
 
 		for (missile in this.missiles) {
 			this.missiles[missile].draw(context);
 		}
+	}
+
+	Player.prototype.drawLives = function(context) {
+		for (var i = 0; i < this.lives; i++) {
+			context.drawImage(this.image, 20  + i * (this.width / 2 + 10), 620, this.width / 2, this.height / 2);
+		};
 	}
 
 	Player.prototype.moveLeft = function() {
@@ -140,6 +156,17 @@ var Player = function(image) {
 	Player.prototype.shoot = function() {
 		if (this.missiles.length < 1 || this.missiles[this.missiles.length - 1].y < this.y - this.height - 45) {
 			this.missiles[this.missiles.length] = new PlayerMissile(this);
+		}
+	}
+
+	Player.prototype.die = function() {
+		this.lives--;
+		// Show dieing animation
+
+		if (this.lives == 0) {
+			// Gameover
+		} else {
+			// continue playing
 		}
 	}
 
@@ -195,8 +222,7 @@ var Enemy = function(image, x, y) {
 
 	this.missiles = [];
 
-	this.speed = 10;
-	this.direction = 'right';
+	this.speed = game.enemySpeed;
 }
 
 	Enemy.prototype.draw = function(context) {
@@ -208,8 +234,18 @@ var Enemy = function(image, x, y) {
 	}
 
 	Enemy.prototype.update = function(context) {
-		if (game.totalFrames % 60 == 1) {
-			this.y += this.speed;
+		if (game.enemyDirection == 'right') {
+			if (this.x + this.width + game.enemySpeed + 24 < 960) {
+				this.x += game.enemySpeed;
+			} else {
+				game.moveDown('left');
+			}
+		} else {
+			if (this.x - game.enemySpeed - 24 > 0) {
+				this.x -= game.enemySpeed;
+			} else {
+				game.moveDown('right');
+			}
 		}
 		// Walk left or right
 	}
@@ -226,6 +262,15 @@ var Enemy = function(image, x, y) {
 		if (this.missiles.length < 1 || this.missiles[this.missiles.length - 1].y > this.y + this.height + 45) {
 			this.missiles[this.missiles.length] = new EnemyMissile(this);
 		}
+	}
+
+	Game.prototype.moveDown = function(direction) {
+		game.enemySpeed = Math.min(game.enemySpeed + 0.5, 5);
+		game.enemyDirection = direction;
+		for (var i = 0; i < game.enemies.length; i++) {
+			enemy = game.enemies[i];
+			enemy.y += 10;
+		};
 	}
 
 // Start game
