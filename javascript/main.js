@@ -9,13 +9,23 @@ var Game = function() {
 
 	this.images = {};
 	this.sounds = {};
-	this.totalResources = 2;
+	this.totalResources = 11;
 	this.numResourcesLoaded = 0;
 	this.fps = 60;
 	this.totalFrames = 0;
 
 	this.loadImage("player");
 	this.loadImage("invader");
+
+	this.loadSound("shoot");
+	this.loadSound("ufo_lowpitch");
+	this.loadSound("ufo_highpitch");
+	this.loadSound("invaderkilled");
+	this.loadSound("fastinvader4");
+	this.loadSound("fastinvader3");
+	this.loadSound("fastinvader2");
+	this.loadSound("fastinvader1");
+	this.loadSound("explosion");
 
 	this.context.lineWidth=1;
 	this.context.fillStyle="#222";
@@ -52,6 +62,13 @@ var Game = function() {
 		  this.images[name].src = "images/" + name + ".png";
 	}
 
+	Game.prototype.loadSound = function(name) {
+		this.sounds[name] = new Audio();
+		this.sounds[name].addEventListener('canplaythrough', this.resourceLoaded(), false);
+		this.sounds[name].src = "sounds/" + name + ".wav";
+		console.log(this.sounds[name]);
+	}
+
 	Game.prototype.resourceLoaded = function() {
 		this.numResourcesLoaded += 1;
 		if(this.numResourcesLoaded === this.totalResources) {
@@ -64,13 +81,13 @@ var Game = function() {
 		this.enemies = [];
 		this.score = 0;
 
-		this.enemySpeed = 2;
+		this.enemySpeed = 0.5;
 		this.enemyDirection = 'right';
 		this.missiles = [];
 
 		for (var i = 0; i < 10; i++) {
 			for (var y = 0; y < 5; y++) {
-				this.enemies[this.enemies.length] = new Enemy(this.images['invader'], i * 64 + 24, y * 48 + 24);
+				this.enemies[this.enemies.length] = new Enemy(this.images['invader'], 40 + i * 80 + 24, y * 48 + 24);
 			};			
 		};
 

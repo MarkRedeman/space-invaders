@@ -69,4 +69,6 @@ var Player = function(image) {
 		} else {
 			// continue playing
 		}
+
+		game.sounds['explosion'].play();
 	}

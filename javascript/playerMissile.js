@@ -5,6 +5,8 @@ var PlayerMissile = function(player) {
 	this.y = player.y - this.height;
 
 	this.speed = 5;
+
+	game.sounds['shoot'].play()
 }
 	PlayerMissile.prototype.update = function() {
 		this.y -= this.speed;

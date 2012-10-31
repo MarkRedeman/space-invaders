@@ -1,13 +1,13 @@
 var Enemy = function(image, x, y) {
 	this.image = image;
 
-	this.width = 40; //this.image.width;
-	this.height = 20; //this.image.height;
+	this.width = 26; //this.image.width;
+	this.height = 24; //this.image.height;
 
-	this.x = x;
+	this.x = x + (80 - this.width) / 2;
 	this.y = y;
 
-	this.speed = game.enemySpeed;
+	this.speed = 0.5; //game.enemySpeed;
 
 	this.dead = false;
 }
@@ -19,21 +19,17 @@ var Enemy = function(image, x, y) {
 	Enemy.prototype.update = function(context) {
 		if (this.dead) { return }
 
-		if (this.x + this.speed < 25 || this.x + this.width + this.speed > game.width - 25) {
+		if (this.x + this.speed < 40 || this.x + this.width + this.speed > game.width - 40) {
 			this.moveDown(true);
 		}
-
 		this.x += this.speed;
-
 		// Shoot missle randomly
-		if (Math.random() < EnemyMissileChance) {
-			this.shoot();
-		}
+		if (Math.random() < EnemyMissileChance) { this.shoot(); }
 	}
 
 	Enemy.prototype.moveDown = function(iterate) {
 		this.speed = -1 * this.speed;
-		this.y += this.height;
+		this.y += this.height / 2;
 
 		if (iterate === true) {
 			for (var i = 0; i < game.enemies.length; i++) {
@@ -52,4 +48,5 @@ var Enemy = function(image, x, y) {
 	Enemy.prototype.die = function() {
 		this.dead = true;
 		game.score += 10;
+		game.sounds['invaderkilled'].play()
 	}
