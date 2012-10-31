@@ -7,7 +7,7 @@ body, html {
 	font-family: serif;
 
 	
-	background-image: url('http://localhost/space-invaders/images/background-pattern.png'); /* url('http://localhost/space-invaders/images/space.jpg'); */
+	background-image: url('../images/background-pattern.png');
 
 }
 
@@ -67,4 +67,8 @@ canvas {
 
 p {
 	margin: 1em 0;
+}
+
+canvas {
+	background-image: url('../images/background.png');
 }

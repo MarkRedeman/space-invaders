@@ -15,7 +15,7 @@ var Game = function() {
 	this.totalFrames = 0;
 
 	this.loadImage("player");
-	this.loadImage("enemy");
+	this.loadImage("invader");
 
 	this.context.lineWidth=1;
 	this.context.fillStyle="#222";
@@ -70,7 +70,7 @@ var Game = function() {
 
 		for (var i = 0; i < 10; i++) {
 			for (var y = 0; y < 5; y++) {
-				this.enemies[this.enemies.length] = new Enemy(this.images['enemy'], i * 64 + 24, y * 48 + 24);
+				this.enemies[this.enemies.length] = new Enemy(this.images['invader'], i * 64 + 24, y * 48 + 24);
 			};			
 		};
 
@@ -94,8 +94,8 @@ var Game = function() {
 			this.missiles[missile].draw(this.context);
 		}
 		// Draw score
-		this.context.fillStyle="#222";
-		this.context.lineStyle="#ffff00";
+		this.context.fillStyle="#fff";
+		this.context.lineStyle="#222";
 		this.context.font="18px sans-serif";
 		this.context.fillText("Score: " + this.score, 20, 600); //$('#score').html(this.score);		
 		

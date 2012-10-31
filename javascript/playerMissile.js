@@ -25,6 +25,7 @@ var PlayerMissile = function(player) {
 	    context.lineTo(this.x, this.y - this.height);
 	    context.lineTo(this.x + this.width, this.y - this.height);
 	    context.lineTo(this.x + this.width, this.y);
+	    context.fillStyle = "white";
 	    context.fill();
 	}
 
