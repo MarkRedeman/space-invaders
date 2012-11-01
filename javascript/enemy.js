@@ -49,4 +49,15 @@ var Enemy = function(image, x, y) {
 		this.dead = true;
 		game.score += 10;
 		game.sounds['invaderkilled'].play()
+
+		enemyAlive = false;
+		for (var i = 0; i < game.enemies.length; i++) {
+			if (game.enemies[i].dead === false) { 
+				enemyAlive = true;
+				break;
+			}
+		};
+		if (enemyAlive === false) {
+			game.levelReset();
+		}
 	}

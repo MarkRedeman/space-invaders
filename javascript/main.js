@@ -1,4 +1,7 @@
 var EnemyMissileChance = 0.0005;
+var leftPressed = false;
+var rightPressed = false;
+var spacePressed = false;
 
 var Game = function() {
 	this.canvas = document.getElementById('canvas');
@@ -9,13 +12,14 @@ var Game = function() {
 
 	this.images = {};
 	this.sounds = {};
-	this.totalResources = 11;
+	this.totalResources = 12;
 	this.numResourcesLoaded = 0;
 	this.fps = 60;
 	this.totalFrames = 0;
 
 	this.loadImage("player");
 	this.loadImage("invader");
+	this.loadImage("flying-saucer");
 
 	this.loadSound("shoot");
 	this.loadSound("ufo_lowpitch");
@@ -35,22 +39,46 @@ var Game = function() {
 
 	this.interval = null;
 };
+	Game.prototype.initialize = function() {
+		this.player = new Player(this.images['player']);
+		this.score = 0;
+		this.levelReset();
+
+		this.bindEvents();
+		this.interval = setInterval(this.update, 1000 / this.fps);
+	}
 
 	Game.prototype.bindEvents = function() {
 		$(document).keydown(function(e) {
-		  var keyCode = e.keyCode || e.which;
+		  	var keyCode = e.keyCode || e.which;
+		  	switch (keyCode) {
+			    case 37: // left
+			    	leftPressed = true;
+			    	rightPressed = false;
+			    break;
+			    case 39: // right
+			    	rightPressed = true;
+			    	leftPressed = false;
+			    break;
+			    case 32: // Space
+			    	spacePressed = true;
+			    break;
+		  	}
+		});
 
+		$(document).keyup(function(e) {
+		  var keyCode = e.keyCode || e.which;
 		  switch (keyCode) {
-		    case 37: // left
-		      	game.player.moveLeft();
-		    break;
-		    case 39: // right
-		      	game.player.moveRight();
-		    break;
-		    case 32: // Space
-		    	game.player.shoot();
-		    break;
-		  }
+			    case 37: // left
+			    	leftPressed = false;
+			    break;
+			    case 39: // right
+			    	rightPressed = false;
+			    break;
+			    case 32: // Space
+			    	spacePressed = false;
+			    break;
+		  	}
 		});
 	};
 
@@ -76,25 +104,6 @@ var Game = function() {
 		}
 	}
 
-	Game.prototype.initialize = function() {
-		this.player = new Player(this.images['player']);
-		this.enemies = [];
-		this.score = 0;
-
-		this.enemySpeed = 0.5;
-		this.enemyDirection = 'right';
-		this.missiles = [];
-
-		for (var i = 0; i < 10; i++) {
-			for (var y = 0; y < 5; y++) {
-				this.enemies[this.enemies.length] = new Enemy(this.images['invader'], 40 + i * 80 + 24, y * 48 + 24);
-			};			
-		};
-
-		this.bindEvents();
-		this.interval = setInterval(this.update, 1000 / this.fps);
-	}
-
 	Game.prototype.redraw = function() {
 		this.canvas.width = this.canvas.width; // clears the canvas 
 		this.player.draw(this.context);
@@ -110,6 +119,10 @@ var Game = function() {
 		for (missile in this.missiles) {
 			this.missiles[missile].draw(this.context);
 		}
+		// Update UFO's
+		for (var i = 0; i < this.flyingSaucers.length; i++) {
+			this.flyingSaucers[i].draw(this.context)
+		};
 		// Draw score
 		this.context.fillStyle="#fff";
 		this.context.lineStyle="#222";
@@ -121,6 +134,9 @@ var Game = function() {
 	Game.prototype.update = function() {
 		game.totalFrames++;
 		game.player.update();
+		if ( leftPressed) { game.player.moveLeft() }
+		if ( rightPressed) { game.player.moveRight(); }
+		if ( spacePressed) { game.player.shoot(); }
 
 		// Update enemies
 		for (var i = 0; i < game.enemies.length; i++) {
@@ -144,6 +160,17 @@ var Game = function() {
 				}
 			};
 		};
+
+		// Update UFO's
+		for (var i = 0; i < game.flyingSaucers.length; i++) {
+			game.flyingSaucers[i].update()
+		};
+		// A UFO should spawn every 200 seconds
+		if (game.totalFrames % game.fps	== 1) {
+			if (Math.random() < 0.005) {
+				game.flyingSaucers[game.flyingSaucers.length] = new FlyingSaucer(game.images['flying-saucer']);
+			}
+		}
 
 		game.redraw();
 	}
@@ -177,6 +204,21 @@ var Game = function() {
 		game = null;
 	}
 
+	Game.prototype.levelReset = function() {
+		this.enemies = [];
+
+		this.enemySpeed = 0.5;
+		this.enemyDirection = 'right';
+		this.missiles = [];
+		this.flyingSaucers = [];		
+
+		for (var i = 0; i < 10; i++) {
+			for (var y = 0; y < 5; y++) {
+				this.enemies[this.enemies.length] = new Enemy(this.images['invader'], 40 + i * 80 + 24, y * 40 + 40);
+			};			
+		};
+	}
+
 $('button.start').click(function() {
 	// Start game
 	game = new Game();
@@ -191,4 +233,4 @@ $('button.stop').click(function() {
 	game.stop();
 });
 
-//$('button.start').click();
+$('button.start').click();

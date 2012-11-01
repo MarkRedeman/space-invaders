@@ -13,7 +13,7 @@ var Player = function(image) {
 
 	this.missiles = [];
 
-	this.speed = 15;
+	this.speed = 5;
 }
 	Player.prototype.update = function() {
 		// Update player's missiles
@@ -43,11 +43,11 @@ var Player = function(image) {
 	}
 
 	Player.prototype.moveLeft = function() {
-		this.x -= this.speed;
+		this.x = Math.max(40, this.x - this.speed);
 	}
 
 	Player.prototype.moveRight = function() {
-		this.x += this.speed;
+		this.x = Math.min(game.width - this.width - 40, this.x + this.speed);
 	}
 
 	Player.prototype.shoot = function() {

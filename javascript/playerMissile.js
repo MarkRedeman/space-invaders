@@ -18,6 +18,14 @@ var PlayerMissile = function(player) {
 				this.y = -1;
 			}
 		};
+
+		for (var i = 0; i < game.flyingSaucers.length; i++) {
+			if (this.collide(game.flyingSaucers[i]) && !game.flyingSaucers[i].dead) {
+				// Remove enemy and missile
+				game.flyingSaucers[i].die();
+				this.y = -1;
+			}
+		};
 		
 	}
 
