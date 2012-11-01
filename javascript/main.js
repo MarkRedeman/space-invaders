@@ -42,7 +42,10 @@ var Game = function() {
 	Game.prototype.initialize = function() {
 		this.player = new Player(this.images['player']);
 		this.score = 0;
+		this.level = 0;
 		this.levelReset();
+
+		this.enemySpeed = 0.5;
 
 		this.bindEvents();
 		this.interval = setInterval(this.update, 1000 / this.fps);
@@ -128,6 +131,8 @@ var Game = function() {
 		this.context.lineStyle="#222";
 		this.context.font="18px sans-serif";
 		this.context.fillText("Score: " + this.score, 20, 600); //$('#score').html(this.score);		
+
+		this.context.fillText("Level: " + this.level, 20, 570); //$('#score').html(this.score);		
 		
 	}
 
@@ -165,9 +170,9 @@ var Game = function() {
 		for (var i = 0; i < game.flyingSaucers.length; i++) {
 			game.flyingSaucers[i].update()
 		};
-		// A UFO should spawn every 200 seconds
+		// A UFO should spawn every 100 seconds
 		if (game.totalFrames % game.fps	== 1) {
-			if (Math.random() < 0.005) {
+			if (Math.random() < 0.01) {
 				game.flyingSaucers[game.flyingSaucers.length] = new FlyingSaucer(game.images['flying-saucer']);
 			}
 		}
@@ -202,6 +207,14 @@ var Game = function() {
 	Game.prototype.stop = function() {
 		clearInterval(this.interval);
 		game = null;
+	}
+
+	Game.prototype.nextLevel = function() {
+		this.levelReset();
+		this.level++;
+		// Make the next level harder
+		this.enemySpeed = 0.5 + 0.1 * this.level;
+		EnemyMissileChance += 0.0001;
 	}
 
 	Game.prototype.levelReset = function() {

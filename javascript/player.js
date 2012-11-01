@@ -14,6 +14,7 @@ var Player = function(image) {
 	this.missiles = [];
 
 	this.speed = 5;
+	this.fireRate = 200;
 }
 	Player.prototype.update = function() {
 		// Update player's missiles
@@ -51,7 +52,7 @@ var Player = function(image) {
 	}
 
 	Player.prototype.shoot = function() {
-		if (this.missiles.length < 1 || this.missiles[this.missiles.length - 1].y < this.y - this.height - 200) {
+		if (this.missiles.length < 1 || this.missiles[this.missiles.length - 1].y < this.y - this.height - this.fireRate) {
 			this.missiles[this.missiles.length] = new PlayerMissile(this);
 		}
 	}

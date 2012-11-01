@@ -28,21 +28,9 @@ var FlyingSaucer = function(image) {
 		this.x += this.speed;
 	}
 
-	FlyingSaucer.prototype.moveDown = function(iterate) {
-		this.speed = -1 * this.speed;
-		this.y += this.height / 2;
-
-		if (iterate === true) {
-			for (var i = 0; i < game.enemies.length; i++) {
-				if (game.enemies[i] === this) { continue; }
-				game.enemies[i].moveDown();
-			};
-		}
-	}
-
 	FlyingSaucer.prototype.die = function() {
 		this.dead = true;
-		var score = Math.floor(Math.random() * 10) * 50;
+		var score = Math.floor(Math.random() * (10 + game.level)) * 50;
 		console.log(score);
 		game.score += score;
 		game.sounds['invaderkilled'].play()
