@@ -17,6 +17,8 @@ var Game = function() {
 	this.fps = 60;
 	this.totalFrames = 0;
 
+	this.state = 'loading';
+
 	this.loadImage("player");
 	this.loadImage("invader");
 	this.loadImage("flying-saucer");
@@ -47,6 +49,7 @@ var Game = function() {
 
 		this.enemySpeed = 0.5;
 
+		this.state = 'playing';
 		this.bindEvents();
 		this.interval = setInterval(this.update, 1000 / this.fps);
 	}
@@ -130,54 +133,85 @@ var Game = function() {
 		this.context.fillStyle="#fff";
 		this.context.lineStyle="#222";
 		this.context.font="18px sans-serif";
-		this.context.fillText("Score: " + this.score, 20, 600); //$('#score').html(this.score);		
+		this.context.fillText("Score: " + this.score, 20, 600);
 
-		this.context.fillText("Level: " + this.level, 20, 570); //$('#score').html(this.score);		
+		this.context.fillText("Level: " + this.level, 20, 570);
 		
 	}
 
 	Game.prototype.update = function() {
-		game.totalFrames++;
-		game.player.update();
-		if ( leftPressed) { game.player.moveLeft() }
-		if ( rightPressed) { game.player.moveRight(); }
-		if ( spacePressed) { game.player.shoot(); }
+		if (game.state === 'pause') { return; }
+		if (game.state === 'dead') { game.updateDead() }
+		if (game.state === 'playing') { game.play() }
+	}
+
+	Game.prototype.updateDead = function() {
+		this.missiles = [];
+		this.enemies = [];
+		this.flyingSaucers = [];
+
+		this.canvas.width = this.canvas.width; // clears the canvas 
+
+		this.player.x = 320 - this.player.width;
+		this.player.draw(this.context);
+
+		this.context.fillStyle="#fff";
+		this.context.lineStyle="#222";
+		this.context.font="80px sans-serif";
+		this.context.fillText("Gameover", 100, 150);
+
+		this.context.font="20px sans-serif";
+		this.context.fillText("Score: " + this.score, 120, 180);
+		this.context.fillText("Level: " + this.level, 120, 210);
+
+		this.context.font="30px sans-serif";
+		this.context.fillText("Restart", 120, 260);
+
+		this.stop();
+	}
+
+	Game.prototype.play = function() {
+		this.totalFrames++;
+		this.player.update();
+		if ( leftPressed) { this.player.moveLeft() }
+		if ( rightPressed) { this.player.moveRight(); }
+		if ( spacePressed) { this.player.shoot(); }
 
 		// Update enemies
-		for (var i = 0; i < game.enemies.length; i++) {
-			game.enemies[i].update();
+		for (var i = 0; i < this.enemies.length; i++) {
+			this.enemies[i].update();
 		};
 
 		// Update enemy missiles
-		for (var i = 0; i < game.missiles.length; i++) {
-			missile = game.missiles[i];
+		for (var i = 0; i < this.missiles.length; i++) {
+			missile = this.missiles[i];
 			missile.update();
 			// Delete missile if missile is out of sight
 			if (missile.y > 640) {
-				game.missiles.splice(i, 1);
+				this.missiles.splice(i, 1);
 			}
 
 			// Player's missile collides with enemy's missile
-			for (var j = 0; j < game.player.missiles.length; j++) {
-				if (missile.collide(game.player.missiles[j])) {
-					game.missiles.splice(i, 1);		
-					game.player.missiles.splice(j, 1);		
+			for (var j = 0; j < this.player.missiles.length; j++) {
+				if (missile.collide(this.player.missiles[j])) {
+					this.missiles.splice(i, 1);		
+					this.player.missiles.splice(j, 1);		
 				}
 			};
 		};
 
 		// Update UFO's
-		for (var i = 0; i < game.flyingSaucers.length; i++) {
-			game.flyingSaucers[i].update()
+		for (var i = 0; i < this.flyingSaucers.length; i++) {
+			this.flyingSaucers[i].update()
 		};
 		// A UFO should spawn every 100 seconds
-		if (game.totalFrames % game.fps	== 1) {
+		if (this.totalFrames % this.fps	== 1) {
 			if (Math.random() < 0.01) {
-				game.flyingSaucers[game.flyingSaucers.length] = new FlyingSaucer(game.images['flying-saucer']);
+				this.flyingSaucers[this.flyingSaucers.length] = new FlyingSaucer(this.images['flying-saucer']);
 			}
 		}
 
-		game.redraw();
+		this.redraw();
 	}
 
 	Game.prototype.aliveEnemies = function() {
@@ -188,15 +222,6 @@ var Game = function() {
 			}
 		};
 		return enemies;
-	}
-
-	Game.prototype.moveDown = function(direction) {
-		game.enemySpeed = Math.min(game.enemySpeed + 0.5, 5);
-		game.enemyDirection = direction;
-		for (var i = 0; i < game.enemies.length; i++) {
-			enemy = game.enemies[i];
-			enemy.y += 10;
-		};
 	}
 
 	Game.prototype.reset = function() {
@@ -244,6 +269,18 @@ $('button.reset').click(function() {
 $('button.stop').click(function() {
 	// Start game
 	game.stop();
+});
+
+$('button.pause').click(function() {
+	console.log(this);
+	if (game.state === 'pause') {
+		game.state = 'playing';
+		$(this).html('Pause');
+	} else {
+		game.state = 'pause';
+		$(this).html('Resume');
+	}
+
 });
 
 $('button.start').click();

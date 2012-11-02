@@ -67,6 +67,7 @@ var Player = function(image) {
 
 		if (this.lives == 0) {
 			// Gameover
+			game.state = 'dead';
 		} else {
 			// continue playing
 		}
